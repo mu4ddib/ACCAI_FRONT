@@ -1,0 +1,69 @@
+<section class="uploader" aria-busy="{{ loading() }}">
+    <header class="title">Cargar archivo CSV</header>
+  
+    <div
+      class="drop-zone"
+      [class.dragging]="dragging()"
+      [class.disabled]="loading()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave()"
+      (drop)="onDrop($event)"
+      role="button"
+      aria-label="Zona para arrastrar y soltar archivos"
+      tabindex="0"
+    >
+      <p class="hint">
+        Arrastra y suelta tu archivo aquí o
+        <label class="browse">
+          busca en tu equipo
+          <input type="file" accept=".csv" (change)="onBrowseChange($event)" hidden />
+        </label>
+      </p>
+      <small class="sub">Solo .csv · Máx 1 MB</small>
+    </div>
+  
+    @if (errorMsg()) {
+      <div class="alert error" role="alert">{{ errorMsg() }}</div>
+    }
+    @if (infoMsg()) {
+      <div class="alert info">{{ infoMsg() }}</div>
+    }
+  
+    @if (preview()) {
+      <div class="preview">
+        <div class="preview-title">Previsualización (primeras {{ preview()!.rows.length }} filas):</div>
+        <div class="table-wrap" role="region" aria-label="Preview CSV">
+          <table>
+            <thead>
+              <tr>
+                @for (h of preview()!.headers; track $index) { <th>{{ h }}</th> }
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of preview()!.rows; track $index) {
+                <tr>
+                  @for (c of r; track $index) { <td>{{ c }}</td> }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  
+    <div class="actions">
+      <button class="btn secondary" type="button" (click)="clear()" [disabled]="!file() || loading()">Limpiar</button>
+      <button class="btn primary" type="button" (click)="upload()" [disabled]="!canUpload() || loading()" [class.loading]="loading()">
+        {{ loading() ? 'Procesando…' : 'Subir y procesar' }}
+      </button>
+    </div>
+  
+
+    @if (loading()) {
+      <div class="overlay">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="loading-text">Procesando archivo…</div>
+      </div>
+    }
+</section>
+  
