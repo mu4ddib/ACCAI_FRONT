@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { hasAllowedExtension, hasAllowedMime, isUnderMaxSize } from '../../../shared/utils/file-validators';
 import { MAX_FILE_SIZE_BYTES } from '../../../shared/constants/file.constants';
 import { CsvPreview, csvPreviewFromFile } from '../../../shared/utils/csv-preview';
@@ -10,7 +11,7 @@ import { UploadCsvService } from '../../../core/service/upload-csv.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './drop-file.html',
-  styleUrl: './drop-file.css'
+  styleUrls: ['./drop-file.css']  // 👈 plural
 })
 export class DropFile {
   private api = inject(UploadCsvService);
@@ -79,19 +80,22 @@ export class DropFile {
     if (!this.file() || this.errorMsg()) return;
     this.loading.set(true);
     this.infoMsg.set(null);
+
     try {
-      const res = await this.api.uploadCsv(this.file()!).toPromise();
-      if (res?.ok) {
-        this.infoMsg.set(res.message?.message || 'Archivo procesado correctamente.');
+      // El servicio devuelve ApiResult<ProcessResponseDto>. En 400 también llega como body tipado (ok=false).
+      const res = await firstValueFrom(this.api.uploadCsv(this.file()!));
+
+      if (res.ok) {
+        const d = res.data!;
+        this.infoMsg.set(`Procesados ${d.procesados}/${d.total}. Rechazados: ${d.rechazados}.`);
       } else {
-        this.errorMsg.set(res?.message?.message || 'No se pudo procesar el archivo.');
+        const e = res.errors?.[0];
+        const cid = res.correlationId ? ` — ID: ${res.correlationId}` : '';
+        this.errorMsg.set(`${e?.message ?? 'No se pudo procesar el archivo.'}${cid}`);
       }
-    } catch (err: any) {
-      // El interceptor ya normaliza el error
-      this.errorMsg.set(
-        [err?.message, err?.correlationId ? `ID seguimiento: ${err.correlationId}` : null]
-          .filter(Boolean).join(' — ')
-      );
+    } catch {
+      // Solo entra aquí por errores de red o caídas no controladas
+      this.errorMsg.set('Error de red. Intenta nuevamente en unos minutos.');
     } finally {
       this.loading.set(false);
     }
