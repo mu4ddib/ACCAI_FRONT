@@ -1,69 +1,119 @@
 <section class="uploader" aria-busy="{{ loading() }}">
-    <header class="title">Cargar archivo CSV</header>
-  
-    <div
-      class="drop-zone"
-      [class.dragging]="dragging()"
-      [class.disabled]="loading()"
-      (dragover)="onDragOver($event)"
-      (dragleave)="onDragLeave()"
-      (drop)="onDrop($event)"
-      role="button"
-      aria-label="Zona para arrastrar y soltar archivos"
-      tabindex="0"
-    >
-      <p class="hint">
-        Arrastra y suelta tu archivo aquí o
-        <label class="browse">
-          busca en tu equipo
-          <input type="file" accept=".csv" (change)="onBrowseChange($event)" hidden />
-        </label>
-      </p>
-      <small class="sub">Solo .csv · Máx 1 MB</small>
+  <div class="sk-h1 bold" style="margin-bottom: 8px;">Importar CSV</div>
+
+  <div class="sk-h3 bold" style="margin-top: 8px;">Cargar archivo CSV</div>
+
+  <!-- Dropzone propia (no hay dropzone en la guía, la estilizamos con colores Skandia) -->
+  <div
+    class="drop-zone"
+    [class.dragging]="dragging()"
+    [class.disabled]="loading()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+    role="button"
+    aria-label="Zona para arrastrar y soltar archivos"
+    tabindex="0"
+  >
+    <p class="hint">
+      Arrastra y suelta tu archivo aquí o
+      <label class="browse">
+        busca en tu equipo
+        <input type="file" accept=".csv" (change)="onBrowseChange($event)" hidden />
+      </label>
+    </p>
+    <small class="sub">Solo .csv · Máx 1 MB</small>
+  </div>
+
+  <!-- Alerts Skandia -->
+  @if (errorMsg()) {
+    <div class="sk-alert-container alert-error" role="alert">
+      <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_error_a.svg" alt="error">
+      <span class="sk-alert-text">{{ errorMsg() }}</span>
+      <!-- El X es decorativo; si no cierra nada, puedes quitarlo -->
+      <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/exit-alert-icon.svg" alt="" aria-hidden="true">
     </div>
-  
-    @if (errorMsg()) {
-      <div class="alert error" role="alert">{{ errorMsg() }}</div>
-    }
-    @if (infoMsg()) {
-      <div class="alert info">{{ infoMsg() }}</div>
-    }
-  
-    @if (preview()) {
-      <div class="preview">
-        <div class="preview-title">Previsualización (primeras {{ preview()!.rows.length }} filas):</div>
-        <div class="table-wrap" role="region" aria-label="Preview CSV">
-          <table>
-            <thead>
-              <tr>
-                @for (h of preview()!.headers; track $index) { <th>{{ h }}</th> }
-              </tr>
-            </thead>
-            <tbody>
-              @for (r of preview()!.rows; track $index) {
-                <tr>
-                  @for (c of r; track $index) { <td>{{ c }}</td> }
-                </tr>
+  }
+  @if (infoMsg()) {
+    <div class="sk-alert-container alert-success">
+      <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_aprobado_p.svg" alt="ok">
+      <span class="sk-alert-text">{{ infoMsg() }}</span>
+      <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/exit-alert-icon.svg" alt="" aria-hidden="true">
+    </div>
+  }
+
+  <!-- Preview con tabla Skandia -->
+  @if (preview()) {
+    <div class="preview">
+      <div class="sk-h4 medium" style="margin: 12px 0;">Previsualización (primeras {{ preview()!.rows.length }} filas):</div>
+
+      <div class="table-wrap">
+        <table class="sk-table sk-table-hover">
+          <thead>
+            <tr>
+              @for (h of preview()!.headers; track $index) {
+                <th scope="col">
+                  <div class="sk-table-head-content">
+                    <span>{{ h }}</span>
+                    <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/sk_table_head_order.svg" alt="orden">
+                  </div>
+                </th>
               }
-            </tbody>
-          </table>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of preview()!.rows; track $index) {
+              <tr>
+                @for (c of r; track $index) { <td>{{ c }}</td> }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginador Skandia (opcional solo visual) -->
+      <!--
+      <div class="sk-pagination-main-container" style="margin-top:12px;">
+        <div class="sk-pagination-container">
+          <span class="sk-pagination-text">Resultado 1 - {{ preview()!.rows.length }} de {{ preview()!.rows.length }}</span>
+          <ul class="sk-pagination-page">
+            <li class="sk-pagination-page-btn"><span class="sk-pagination-icon-container"><i class="fa-solid fa-chevron-left sk-pagination-icon"></i></span></li>
+            <li class="sk-pagination-page-numbers pagination-active">1</li>
+            <li class="sk-pagination-page-btn"><span class="sk-pagination-icon-container"><i class="fa-solid fa-chevron-right sk-pagination-icon"></i></span></li>
+          </ul>
         </div>
       </div>
-    }
-  
-    <div class="actions">
-      <button class="btn secondary" type="button" (click)="clear()" [disabled]="!file() || loading()">Limpiar</button>
-      <button class="btn primary" type="button" (click)="upload()" [disabled]="!canUpload() || loading()" [class.loading]="loading()">
-        {{ loading() ? 'Procesando…' : 'Subir y procesar' }}
-      </button>
+      -->
     </div>
-  
+  }
 
-    @if (loading()) {
-      <div class="overlay">
-        <div class="spinner" aria-hidden="true"></div>
-        <div class="loading-text">Procesando archivo…</div>
+  <!-- Acciones con botones Skandia -->
+  <div class="actions">
+    <button class="sk-btn sk-btn-light sk-btn-lg noHover" type="button"
+            (click)="clear()" [disabled]="!file() || loading()">LIMPIAR</button>
+
+    <button class="sk-btn sk-btn-primary sk-btn-lg"
+            type="button" (click)="upload()" [disabled]="!canUpload() || loading()">
+      <!-- Indicador de progreso (tres puntos) dentro del botón -->
+      @if (loading()) {
+        <span class="btn-loader"></span>
+      } @else {
+        <span>SUBIR Y PROCESAR</span>
+      }
+    </button>
+  </div>
+
+  <!-- Loader Skandia a pantalla completa (cuando loading() === true) -->
+  @if (loading()) {
+    <div class="sk-container-loader" aria-live="polite" aria-busy="true">
+      <div class="sk-point-loader">
+        <div class="sk-point-logo"></div>
+        <div class="sk-diagonal-square-logo">
+          <div class="sk-triangle-logo">
+            <div class="sk-text-logo"><span>sk</span></div>
+          </div>
+        </div>
       </div>
-    }
+    </div>
+  }
 </section>
-  
