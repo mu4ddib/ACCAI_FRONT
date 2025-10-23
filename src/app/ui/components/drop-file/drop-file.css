@@ -1,9 +1,8 @@
 :host { display: block; }
 .uploader { position: relative; max-width: 1100px; margin: 24px auto; padding: 0 16px; }
 
-/* Drop zone con colores Skandia */
 .drop-zone {
-  border: 2px dashed #C4C7CC; /* gris guía */
+  border: 2px dashed #C4C7CC; 
   border-radius: 16px;
   padding: 28px;
   text-align: center;
@@ -11,7 +10,7 @@
   transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
 }
 .drop-zone.dragging {
-  border-color: #00C83C;       /* Verde Skandia */
+  border-color: #00C83C;      
   background: #F0FFF6;
   box-shadow: 0 0 0 4px rgba(0,200,60,.12) inset;
 }
@@ -20,13 +19,10 @@
 .hint { margin: 0 0 4px; }
 .sub { color: #6b7280; }
 
-/* Envoltorio de tabla (scroll cuando hay muchas columnas) */
 .table-wrap { overflow: auto; border-radius: 14px; }
 
-/* Alinea acciones a la derecha */
 .actions { display:flex; gap:12px; justify-content:flex-end; margin-top:16px; }
 
-/* Loader pequeño para el botón (3 puntos) */
 .btn-loader {
   display:inline-block; width: 28px; height: 12px; position: relative;
 }
@@ -40,3 +36,134 @@
 .btn-loader::after { left: 22px; animation-delay: .4s; }
 
 @keyframes bblink { 0%, 80%, 100% { opacity:.3; } 40% { opacity:1; } }
+
+/* Chips para metadatos (CID, totales) */
+.chip-group{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+.chip{
+  background:#F0FFF6; border:1px solid rgba(0,200,60,.35);
+  color:#11753a; padding:4px 8px; border-radius:999px; font-size:.82rem;
+  cursor: pointer; user-select:none;
+}
+.chip:hover{ filter:brightness(.98); }
+
+.detail-card{
+  margin-top:10px; padding:12px; background:#fff; border:1px solid #E5E7EB;
+  border-radius:12px; box-shadow:0 10px 24px rgba(0,0,0,.04);
+}
+.grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px; }
+.pills{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.pill{
+  background:#eef2ff; color:#3730a3; border:1px solid #dbeafe;
+  padding:4px 8px; border-radius:999px; font-size:.8rem;
+}
+.pill.alt{ background:#f8fafc; color:#374151; border-color:#e5e7eb; }
+.pill.warn{ background:#fef3c7; color:#92400e; border-color:#fde68a; }
+
+.panel-actions{ margin-left:12px; display:flex; gap:8px; }
+.sk-btn-sm{ padding:6px 10px; font-size:.85rem; }
+
+.sk-table thead th .sk-table-head-content span {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  max-width: none !important;
+}
+.sk-table thead th .sk-table-head-content img {
+  width: 14px; height: 14px; opacity: .6; flex: 0 0 auto;
+}
+/* ====== Acciones generales ====== */
+.actions { display:flex; gap:12px; justify-content:flex-end; margin-top:16px; }
+.actions .sk-btn { min-width: 180px; border-radius: 999px; } /* coherente y más minimal */
+
+/* ====== Panel de error en grid ====== */
+.error-panel{
+  display:grid; gap:12px; align-items:center;
+  grid-template-columns: 1fr auto 220px; /* msg | chips | acciones (columna) */
+}
+.error-left{ display:flex; gap:12px; align-items:center; }
+.panel-actions.column{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-width: 240px;
+}
+.panel-actions .sk-btn{
+  width:100%; height:48px; 
+  border-radius:999px;
+  padding-inline:16px;
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+}
+
+.panel-actions .sk-btn.full{ width:100%; border-radius: 999px; }
+
+.panel-actions .btn-label{
+  max-width:100%;
+  white-space: nowrap;            
+  overflow: hidden;               
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+
+/* Responsive: apila en móviles */
+@media (max-width: 900px){
+  .error-panel{ grid-template-columns: 1fr; }
+  .panel-actions.column{ min-width: 100%; grid-auto-rows: 44px; }
+}
+
+/* ====== Chips/metadatos ====== */
+.chip-group{ margin-left:0; display:flex; gap:8px; flex-wrap:wrap; }
+.chip{
+  background:#F0FFF6; border:1px solid rgba(0,200,60,.35);
+  color:#11753a; padding:6px 10px; border-radius:999px; font-size:.85rem;
+  cursor: pointer; user-select:none;
+}
+
+.sk-table thead th { white-space: nowrap; }
+.sk-table thead th .sk-table-head-content {
+  display:flex; align-items:center; gap:6px; justify-content:flex-start;
+}
+.sk-table thead th .sk-table-head-content img {
+  width:14px; height:14px; opacity:.6; flex:0 0 auto;
+}
+.sk-table thead th .sk-table-head-content span {
+  overflow: visible !important; text-overflow: clip !important;
+  white-space: nowrap !important; max-width: none !important;
+}
+
+.sk-container-loader{
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0,0,0,.35) !important; 
+  backdrop-filter: blur(1px);
+  z-index: 10000 !important;
+}
+.sk-point-loader{ transform: scale(1.05); }
+
+/* Overlay contenedor (full screen, centrado, con opacidad) */
+.skds-loader-overlay{
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.35);        /* opacidad del fondo */
+  backdrop-filter: blur(1px);
+  z-index: 10000;
+  pointer-events: all;
+}
+
+/* Neutraliza posiciones del loader de la guía dentro del overlay */
+.skds-loader-overlay .sk-container-loader{
+  position: static !important;
+  inset: auto !important;
+  left: auto !important; right: auto !important; top: auto !important; bottom: auto !important;
+  background: transparent !important;
+}
+.skds-loader-overlay .sk-point-loader{ transform: scale(1.05); }
+
+
+
+
+

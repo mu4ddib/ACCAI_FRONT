@@ -3,7 +3,6 @@
 
   <div class="sk-h3 bold" style="margin-top: 8px;">Cargar archivo CSV</div>
 
-  <!-- Dropzone propia (no hay dropzone en la guía, la estilizamos con colores Skandia) -->
   <div
     class="drop-zone"
     [class.dragging]="dragging()"
@@ -19,21 +18,116 @@
       Arrastra y suelta tu archivo aquí o
       <label class="browse">
         busca en tu equipo
-        <input type="file" accept=".csv" (change)="onBrowseChange($event)" hidden />
+        <input #fileInput type="file" accept=".csv" (change)="onBrowseChange($event)" hidden />
       </label>
     </p>
     <small class="sub">Solo .csv · Máx 1 MB</small>
   </div>
 
-  <!-- Alerts Skandia -->
-  @if (errorMsg()) {
-    <div class="sk-alert-container alert-error" role="alert">
-      <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_error_a.svg" alt="error">
-      <span class="sk-alert-text">{{ errorMsg() }}</span>
-      <!-- El X es decorativo; si no cierra nada, puedes quitarlo -->
-      <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/exit-alert-icon.svg" alt="" aria-hidden="true">
+@if (errorObj()) {
+  <div class="sk-alert-container alert-error" role="alert" style="align-items:center;">
+    <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_error_a.svg" alt="">
+    <span class="sk-alert-text">
+      {{ errorObj()!.message }}
+      @if (errorObj()!.kind === 'headers' && errorObj()!.delimiterHint) {
+        <span> — {{ errorObj()!.delimiterHint }}</span>
+      }
+    </span>
+
+    <div class="chip-group">
+      @if (errorObj()!.correlationId) {
+        <span class="chip" title="Copiar ID" (click)="copyCorrelationId()">
+          ID: {{ errorObj()!.correlationId }}
+        </span>
+      }
+      @if (errorObj()!.errores) {
+        <span class="chip">Errores: {{ errorObj()!.errores }}</span>
+      }
+      @if (errorObj()!.totalFilas !== undefined) {
+        <span class="chip">Filas: {{ errorObj()!.totalFilas }}</span>
+      }
     </div>
+
+    <div class="panel-actions column">
+      <button type="button" class="sk-btn sk-btn-light sk-btn-md full"
+              (click)="showDetail.set(!showDetail())">
+        <span class="btn-label">{{ showDetail() ? 'Ocultar detalle' : 'Ver detalle' }}</span>
+      </button>
+    
+      <button type="button" class="sk-btn sk-btn-primary sk-btn-md full"
+              (click)="exportErrorsCsv()">
+        <span class="btn-label">Descargar errores CSV</span>
+      </button>
+    </div>    
+  </div>
+
+  @if (showDetail()) {
+    @if (errorObj()!.kind === 'headers') {
+      <div class="detail-card">
+        <div class="sk-h5 medium">Comparación de cabeceras</div>
+
+        <div class="grid-2">
+          <div>
+            <div class="sk-b1 medium">Esperado</div>
+            <div class="pills">
+              @for (h of errorObj()!.headerExpected ?? []; track h) { <span class="pill">{{ h }}</span> }
+            </div>
+          </div>
+          <div>
+            <div class="sk-b1 medium">Recibido</div>
+            <div class="pills">
+              @for (h of errorObj()!.headerReceived ?? []; track h) { <span class="pill alt">{{ h }}</span> }
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="sk-b1 medium">Faltantes</div>
+            <div class="pills">
+              @for (h of errorObj()!.headerMissing ?? []; track h) { <span class="pill warn">{{ h }}</span> }
+              @if (!(errorObj()!.headerMissing?.length)) { <span class="sk-b2">—</span> }
+            </div>
+          </div>
+          <div>
+            <div class="sk-b1 medium">Extras</div>
+            <div class="pills">
+              @for (h of errorObj()!.headerExtra ?? []; track h) { <span class="pill warn">{{ h }}</span> }
+              @if (!(errorObj()!.headerExtra?.length)) { <span class="sk-b2">—</span> }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if ((errorObj()!.detalle.length > 0)) {
+      <div class="detail-card">
+        <div class="sk-h5 medium" style="margin-bottom:8px;">Detalle de errores</div>
+        <table class="sk-table sk-table-hover">
+          <thead>
+            <tr>
+              <th scope="col"><div class="sk-table-head-content"><span>Línea</span><img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/sk_table_head_order.svg" alt=""></div></th>
+              <th scope="col"><div class="sk-table-head-content"><span>Campo</span><img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/sk_table_head_order.svg" alt=""></div></th>
+              <th scope="col"><div class="sk-table-head-content"><span>Mensaje</span><img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/sk_table_head_order.svg" alt=""></div></th>
+              <th scope="col"><div class="sk-table-head-content"><span>Valor</span><img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/sk_table_head_order.svg" alt=""></div></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of errorObj()!.detalle; track $index) {
+              <tr>
+                <td>{{ d.linea }}</td>
+                <td>{{ d.campo }}</td>
+                <td>{{ d.mensaje }}</td>
+                <td>{{ d.valor ?? '' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
   }
+}
+
   @if (infoMsg()) {
     <div class="sk-alert-container alert-success">
       <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/icon-skandia/sk_aprobado_p.svg" alt="ok">
@@ -42,10 +136,9 @@
     </div>
   }
 
-  <!-- Preview con tabla Skandia -->
   @if (preview()) {
     <div class="preview">
-      <div class="sk-h4 medium" style="margin: 12px 0;">Previsualización (primeras {{ preview()!.rows.length }} filas):</div>
+      <div class="sk-h4 medium" style="margin: 12px 0;">Previsualización</div>
 
       <div class="table-wrap">
         <table class="sk-table sk-table-hover">
@@ -55,14 +148,16 @@
                 <th scope="col">
                   <div class="sk-table-head-content">
                     <span>{{ h }}</span>
-                    <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/sk_table_head_order.svg" alt="orden">
+                    <img
+                      src="https://skcoblobresources.blob.core.windows.net/digital-assets/icons/sk_table_head_order.svg"
+                      alt="orden">
                   </div>
                 </th>
               }
             </tr>
           </thead>
           <tbody>
-            @for (r of preview()!.rows; track $index) {
+            @for (r of pagedRows(); track $index) {
               <tr>
                 @for (c of r; track $index) { <td>{{ c }}</td> }
               </tr>
@@ -71,30 +166,43 @@
         </table>
       </div>
 
-      <!-- Paginador Skandia (opcional solo visual) -->
-      <!--
       <div class="sk-pagination-main-container" style="margin-top:12px;">
         <div class="sk-pagination-container">
-          <span class="sk-pagination-text">Resultado 1 - {{ preview()!.rows.length }} de {{ preview()!.rows.length }}</span>
+          <span class="sk-pagination-text">{{ rangeText() }}</span>
           <ul class="sk-pagination-page">
-            <li class="sk-pagination-page-btn"><span class="sk-pagination-icon-container"><i class="fa-solid fa-chevron-left sk-pagination-icon"></i></span></li>
-            <li class="sk-pagination-page-numbers pagination-active">1</li>
-            <li class="sk-pagination-page-btn"><span class="sk-pagination-icon-container"><i class="fa-solid fa-chevron-right sk-pagination-icon"></i></span></li>
+            <li class="sk-pagination-page-btn" [class.disabled]="page()===1" (click)="prev()">
+              <span class="sk-pagination-icon-container"><i class="fa-solid fa-chevron-left sk-pagination-icon"></i></span>
+            </li>
+
+            @for (it of paginationItems(); track $index) {
+              @if (it.type === 'dots') {
+                <li class="sk-pagination-page-dots">...</li>
+              } @else {
+                <li class="sk-pagination-page-numbers"
+                    [class.pagination-active]="it.value === page()"
+                    (click)="goto(it.value)">
+                  {{ it.value }}
+                </li>
+              }
+            }
+
+            <li class="sk-pagination-page-btn" [class.disabled]="page()===totalPages()" (click)="next()">
+              <span class="sk-pagination-icon-container"><i class="fa-solid fa-chevron-right sk-pagination-icon"></i></span>
+            </li>
           </ul>
         </div>
       </div>
-      -->
     </div>
   }
 
-  <!-- Acciones con botones Skandia -->
   <div class="actions">
-    <button class="sk-btn sk-btn-light sk-btn-lg noHover" type="button"
-            (click)="clear()" [disabled]="!file() || loading()">LIMPIAR</button>
+    <button class="sk-btn sk-btn-light sk-btn-lg"
+          type="button" (click)="clear()" [disabled]="loading()">
+      LIMPIAR
+    </button>
 
     <button class="sk-btn sk-btn-primary sk-btn-lg"
             type="button" (click)="upload()" [disabled]="!canUpload() || loading()">
-      <!-- Indicador de progreso (tres puntos) dentro del botón -->
       @if (loading()) {
         <span class="btn-loader"></span>
       } @else {
@@ -103,17 +211,19 @@
     </button>
   </div>
 
-  <!-- Loader Skandia a pantalla completa (cuando loading() === true) -->
   @if (loading()) {
-    <div class="sk-container-loader" aria-live="polite" aria-busy="true">
-      <div class="sk-point-loader">
-        <div class="sk-point-logo"></div>
-        <div class="sk-diagonal-square-logo">
-          <div class="sk-triangle-logo">
-            <div class="sk-text-logo"><span>sk</span></div>
+    <div class="skds-loader-overlay" aria-live="polite" aria-busy="true" role="status">
+      <div class="sk-container-loader">
+        <div class="sk-point-loader">
+          <div class="sk-point-logo"></div>
+          <div class="sk-diagonal-square-logo">
+            <div class="sk-triangle-logo">
+              <div class="sk-text-logo"><span>sk</span></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   }
+  
 </section>

@@ -8,27 +8,17 @@ import { ApiResult, ProcessResponseDto, ValidationResponseDto } from '../../core
 @Injectable({ providedIn: 'root' })
 export class UploadCsvService {
   private http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBase}/api/fp-changes`; // 👈 con guion
+  private readonly baseUrl = `${environment.apiBase}/api/fp-changes`; // ✅ con guion
 
-  validateCsv(file: File): Observable<ValidationResponseDto> {
+  uploadCsv(file: File) {
     const form = new FormData();
     form.append('file', file, file.name);
-    return this.http.post<ValidationResponseDto>(`${this.baseUrl}/validate`, form).pipe(
-      catchError((err: HttpErrorResponse) =>
-        err.status === 400 && err.error ? of(err.error as ValidationResponseDto)
-                                        : throwError(() => err)
-      )
-    );
+    return this.http.post<ApiResult<ProcessResponseDto>>(`${this.baseUrl}/upload`, form); // ✅
   }
 
-  uploadCsv(file: File): Observable<ApiResult<ProcessResponseDto>> {
+  validateCsv(file: File) {
     const form = new FormData();
     form.append('file', file, file.name);
-    return this.http.post<ApiResult<ProcessResponseDto>>(`${this.baseUrl}/upload`, form).pipe(
-      catchError((err: HttpErrorResponse) =>
-        err.status === 400 && err.error ? of(err.error as ApiResult<ProcessResponseDto>)
-                                        : throwError(() => err)
-      )
-    );
+    return this.http.post<ValidationResponseDto>(`${this.baseUrl}/validate`, form);
   }
 }
