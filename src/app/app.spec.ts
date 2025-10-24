@@ -1,23 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { Title } from '@angular/platform-browser';
 
 describe('App', () => {
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-    }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [App] }).compileComponents();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', () => {
+  it('should render brand in header', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, ACCAI_FRONT');
+    const h1: HTMLElement | null = fixture.nativeElement.querySelector('h1');
+    expect(h1?.textContent?.trim()).toBe('SKANDIA');   // 👈 coincide con tu app.html
+  });
+
+  it('should set default document title when no router is provided', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const title = TestBed.inject(Title);
+    expect(title.getTitle()).toBe('ACCAI FRONT');
   });
 });
