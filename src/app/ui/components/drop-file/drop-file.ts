@@ -138,6 +138,7 @@ export class DropFile {
 
   async upload() {
     if (!this.file() || this.errorMsg()) return;
+  
     this.loading.set(true);
     this.infoMsg.set(null);
     this.errorMsg.set(null);
@@ -145,21 +146,39 @@ export class DropFile {
     this.showDetail.set(false);
   
     try {
-      const res = (await firstValueFrom(this.api.uploadCsv(this.file()!))) as ApiResult<ProcessResponseDto>;
-      const ok = (res as any).ok ?? (res as any).success ?? false;
-      const userMsg =
-        this.unwrapMsg(res.message) ||
+      // Si el backend responde 2xx, HttpClient NO lanza error ⇒ éxito
+      const res = await firstValueFrom(this.api.uploadCsv(this.file()!));
+  
+      const msg =
+        this.unwrapMsg((res as any)?.message) ||
         this.unwrapMsg((res as any)?.data?.message) ||
-        (ok ? 'Archivo procesado correctamente.' : 'No se pudo procesar el archivo.');
-      if (ok) this.infoMsg.set(userMsg); else this.errorMsg.set(userMsg);
+        this.buildSuccessMessage(res);
+  
+      this.errorObj.set(null);
+      this.infoMsg.set(msg || 'Archivo procesado correctamente.');
     } catch (err: any) {
+      // 4xx/5xx: normaliza y muestra panel de error
       const n = normalizeApiError(err);
       this.errorObj.set(n);
-      this.errorMsg.set(null);
+      this.infoMsg.set(null);
     } finally {
       this.loading.set(false);
     }
   }
+  
+  private buildSuccessMessage(r: any): string {
+    const d = (r as any)?.data ?? r;
+    const total = d?.totalFilas ?? d?.total ?? d?.processed ?? null;
+    const errs  = d?.errores ?? d?.errors ?? d?.failed ?? 0;
+  
+    if (total != null) {
+      return errs > 0
+        ? `Procesado: ${total} filas · Errores: ${errs}`
+        : `Procesado: ${total} filas · Sin errores`;
+    }
+    return 'Archivo procesado correctamente.';
+  }
+  
 
   copyCorrelationId() {
     const cid = this.errorObj()?.correlationId;

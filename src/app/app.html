@@ -1,6 +1,39 @@
-<header class="page-header">
-    <h1>SKANDIA</h1>
-  </header>
+<header class="sk-header-container">
+  <div class="sk-header-logo-container">
+    <img src="https://skcoblobresources.blob.core.windows.net/digital-assets/logos/sk_skandia_logo.webp"
+         alt="skandia-logo" />
+    <span><span class="sk-header-divider">|</span> Actualización de agentes </span>
+  </div>
+  <div class="sk-header-logo-container-responsive">
+    <img class="sk-header-logo-responsive"
+         src="https://skcoblobresources.blob.core.windows.net/digital-assets/logos/sk_skandia_logo.webp"
+         alt="skandia-logo" />
+    <span><span class="sk-header-divider">|</span> Actualización de agentes </span>
+  </div>
+  <div class="sk-header-options-container">
+    <div class="sk-tabs-container">
+      <form class="sk-tabs">
+        @if(loginDisplay)
+        {
+          <input type="radio" class="sk-tabs-radio" id="tab-header1" name="sk-tabs-example"
+                 (change)="goTo('file-upload')" [checked]="activeTab === 'file-upload'" />
+          <label for="tab-header1" class="sk-tabs-label tabs-header">Cargar archivo</label>
+        }
+
+        <div class="sk-user-info">
+          @if(!loginDisplay) {
+            <button type="button" class="sk-btn sk-btn-outline-primary" (click)="loginRedirect()">
+              Iniciar Sesión
+            </button>
+          }@else{
+            <button type="button" class="sk-btn sk-btn-outline-primary" (click)="logout()">
+              Cerrar Sesión
+            </button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+</header>
 <router-outlet></router-outlet>
-  
-  
+

@@ -1,0 +1,18 @@
+.background-container {
+  background-image: url('https://skcoblobresources.blob.core.windows.net/digital-assets/images/back_1.webp');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+}
+
+h1 {
+  padding-top: 8rem;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 5rem;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
