@@ -2,6 +2,9 @@
     --text-900:#111827; --text-700:#374151; --text-500:#6b7280;
     --border:#e5e7eb; --border-soft:#f1f5f9; --bg-soft:#f8fafc; --bg-hover:#f3f4f6;
 }
-  
+
 .page-header { max-width: 1100px; margin: 24px auto 8px; padding: 0 16px; }
 .page-header h1 { font-size: 28px; font-weight:700; letter-spacing:.2px; }
+.button-margin {
+  margin-bottom: 4px;
+}
